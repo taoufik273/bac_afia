@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afficher et Modifier les Données</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: white;
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #filter-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    #filter-container div {
+      margin: 0 10px;
+    }
+
+    #filter-container label {
+      margin-right: 5px;
+    }
+
+    button {
+      display: block;
+      margin: 10px 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 10px;
+      text-align: center;
+      font-size: 18px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      font-size: 18px;
+      text-align: center;  /* Centering the text */
+    }
+  </style>
+</head>
+<body>
+  <div id="header-container">
+    <h1>انجازات المترشحين</h1>
+    <div id="filter-container">
+      <div>
+        <label for="filter-jour">يوم الامتحان:</label>
+        <select id="filter-jour">
+          <option value="">Tous</option>
+          <!-- Options de filtrage par jour seront ajoutées dynamiquement -->
+        </select>
+      </div>
+      <div>
+        <label for="filter-heure">ساعة الامتحان:</label>
+        <select id="filter-heure">
+          <option value="">Tous</option>
+          <!-- Options de filtrage par heure seront ajoutées dynamiquement -->
+        </select>
+      </div>
+      <button onclick="applyFilters()">كشف المعطيات</button>
+      <button onclick="saveData()">حفظ المعطبات</button>
+    </div>
+  </div>
+  <table id="data-table"  style="display:none;">
+    <thead>
+      <tr>
+        <th>رت</th>
+        <th>يوم الامتحان</th>
+        <th>ساعة الامتحان</th>
+        <th>الاسم والنسب</th>
+        <th>الجمباز</th>
+        <th>الجري السريع</th>
+        <th>دفع الجلة</th>
+        <th>القفز الطويل</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchData();
+    });
+
+    async function fetchData() {
+      const response = await fetch('http://127.0.0.1:5000/api/data');
+      const result = await response.json();
+      const jourFilter = document.getElementById('filter-jour');
+      const heureFilter = document.getElementById('filter-heure');
+      
+      const uniqueJours = [...new Set(result.map(item => item.jour))];
+      const uniqueHeures = [...new Set(result.map(item => item.heure))];
+      
+      uniqueJours.forEach(jour => {
+        const option = document.createElement('option');
+        option.text = jour;
+        jourFilter.add(option);
+      });
+
+      uniqueHeures.forEach(heure => {
+        const option = document.createElement('option');
+        option.text = heure;
+        heureFilter.add(option);
+      });
+    }
+
+    async function applyFilters() {
+      const jourFilter = document.getElementById('filter-jour').value;
+      const heureFilter = document.getElementById('filter-heure').value;
+      
+      const response = await fetch('http://127.0.0.1:5000/api/data');
+      const result = await response.json();
+      const filteredData = result.filter(item => {
+        return (jourFilter === '' || item.jour === jourFilter) &&
+               (heureFilter === '' || item.heure === heureFilter);
+      });
+
+      displayData(filteredData);
+    }
+
+    async function saveData() {
+      const rows = document.querySelectorAll('#data-table tbody tr');
+      const updates = [];
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        const update = { 'numero': row.cells[0].innerText };
+        inputs.forEach(input => {
+          update[input.getAttribute('data-field')] = input.value;
+        });
+        updates.push(update);
+      });
+
+      await fetch('http://127.0.0.1:5000/api/data', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updates)
+      });
+
+      alert('تم الحفظ بنجاح');
+    }
+
+    function displayData(data) {
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
+
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.numero}</td>
+          <td><input type="text" value="${item.jour !== null ? item.jour : ''}" data-field="jour"></td>
+          <td><input type="text" value="${item.heure !== null ? item.heure : ''}" data-field="heure"></td>
+          <td><input type="text" value="${item.nom !== null ? item.nom : ''}" data-field="nom"></td>
+          <td><input type="text" value="${item.gym !== null ? item.gym : ''}" data-field="gym"></td>
+          <td><input type="text" value="${item.course !== null ? item.course : ''}" data-field="course"></td>
+          <td><input type="text" value="${item.poid !== null ? item.poid : ''}" data-field="poid"></td>
+          <td><input type="text" value="${item.saut !== null ? item.saut : ''}" data-field="saut"></td>
+        `;
+        tbody.appendChild(row);
+
+        const inputs = row.querySelectorAll('input');
+        inputs.forEach((input, columnIndex) => {
+          input.addEventListener('keydown', (event) => {
+            const rowIndex = Array.from(tbody.children).indexOf(row);
+
+            if (event.key === 'ArrowRight') {
+              const nextInput = inputs[columnIndex + 1];
+              if (nextInput) {
+                nextInput.focus();
+              }
+            } else if (event.key === 'ArrowLeft') {
+              const previousInput = inputs[columnIndex - 1];
+              if (previousInput) {
+                previousInput.focus();
+              }
+            } else if (event.key === 'ArrowDown') {
+              const nextRow = tbody.children[rowIndex + 1];
+              if (nextRow) {
+                const nextInput = nextRow.querySelectorAll('input')[columnIndex];
+                if (nextInput) {
+                  nextInput.focus();
+                }
+              }
+            } else if (event.key === 'ArrowUp') {
+              const previousRow = tbody.children[rowIndex - 1];
+              if (previousRow) {
+                const previousInput = previousRow.querySelectorAll('input')[columnIndex];
+                if (previousInput) {
+                  previousInput.focus();
+                }
+              }
+            }
+          });
+        });
+      });
+
+      document.getElementById('data-table').style.display = 'table';
+    }
+  </script>
+</body>
+</html>

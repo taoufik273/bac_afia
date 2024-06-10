@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تدبير اختبارات الباكالوريا أحرار لمادة التربية البدنية</title>
+    <style>
+        @font-face {
+            font-family: 'Tajwal';
+            src: url('path/to/Tajwal.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Rubic';
+            src: url('path/to/Rubic.ttf') format('truetype');
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 952px;
+            height: 552px;
+            margin: 20px auto 0;
+            position: relative;
+            display: flex;
+        }
+        .frame {
+            position: absolute;
+        }
+        #F1 {
+            width: 750px;
+            height: 552px;
+            background-color: silver;
+            left: 0;
+            top: 0;
+        }
+        #F2 {
+            width: 200px;
+            height: 200px;
+            background-color: #A1C398;
+            left: 752px;
+            top: 0;
+        }
+        #F3 {
+            width: 200px;
+            height: 350px;
+            background-color: #C6EBC5;
+            left: 752px;
+            top: 202px;
+        }
+        #F4 {
+            width: 200px;
+            height: 100px;
+            background-color: silver;
+            left: 320px;
+            top: 360px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .year-label {
+            font-family: 'Rubic', sans-serif;
+            font-size: 44px;
+            color: #114232;
+        }
+        .title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 5px 0;
+            text-align: center;
+            font-family: 'Tajwal', sans-serif;
+            font-size: 13px;
+            color: white;
+        }
+        #title2 { background-color: #5F7261; }
+        #title3 { background-color: #5F7170; }
+        #title4 {
+            font-family: 'Rubic', sans-serif;
+            font-size: 44px;
+            color: #114232;
+            position: absolute;
+            left: 485px;
+            top: 380px;
+            width: 3em;
+            text-align: center;
+            background-color: silver;
+        }
+        .btn {
+            position: absolute;
+            width: 130px;
+            height: 60px;
+            background-color: #EFEAD8;
+            border: 1px solid black;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: black;
+            transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .btn img { margin-bottom: 5px; }
+        #menu1 { left: 787px; top: 125px; }
+        #menu2 { left: 797px; top: 332px; width: 120px; height: 65px;}
+        #menu3 { left: 797px; top: 412px; width: 120px; height: 65px;}
+        #menu4 { left: 797px; top: 252px; width: 120px; height: 65px;}
+        #menu5 { left: 787px; top: 45px; }
+        #status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            font-family: 'Tajwal', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="F1" class="frame">
+            <img src="img/logo.png" alt="Logo" style="width:100%; height:100%;">
+        </div>
+        <div id="F2" class="frame">
+            <div id="title2" class="title">إعدادات</div>
+        </div>
+        <div id="F3" class="frame">
+            <div id="title3" class="title">تصدير</div>
+        </div>
+        <div id="F4" class="frame">
+            <div class="year-label"><strong>2024</strong></div>
+        </div>
+        <div id="title4"><strong>دورة</strong></div>
+
+        <a href="#" id="menu1" class="btn" onclick="executeScript('app')">
+            <img src="img/saisie.png" alt="Saisie">
+            إنجازات المترشحين
+        </a>
+        <a href="#" id="menu2" class="btn" onclick="executeScript('NF')">
+            <img src="img/pvglobal.png" alt="PV Global">
+            المحضر الجماعي
+        </a>
+        <a href="#" id="menu3" class="btn" onclick="executeScript('allnotes')">
+            <img src="img/pvnote.png" alt="PV Note">
+            محضر النقط
+        </a>
+        <a href="#" id="menu4" class="btn" onclick="executeScript('calculate')">
+            <img src="img/liste.png" alt="Liste">
+            حساب المعدلات
+        </a>
+        <a href="#" id="menu5" class="btn" onclick="executeScript('import')">
+            <img src="img/import.png" alt="Import">
+            استيراد لوائح المترشحين
+        </a>
+    </div>
+
+    <div id="status"></div>
+
+    <script>
+        function executeScript(scriptName) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = `Exécution de ${scriptName}...`;
+            statusDiv.style.display = 'block';
+
+            fetch(`/execute/${scriptName}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.message) {
+                        statusDiv.textContent = data.message;
+                        setTimeout(() => {
+                            statusDiv.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        statusDiv.textContent = `${scriptName} exécuté sans message de retour.`;
+                        setTimeout(() => {
+                            statusDiv.style.display = 'none';
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusDiv.textContent = `Erreur lors de l'exécution de ${scriptName}: ${error}`;
+                    statusDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                        statusDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    }, 5000);
+                });
+        }
+    </script>
+</body>
+</html>
